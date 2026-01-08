@@ -1,7 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
+from pathlib import Path
 
 url = "http://www.scrapethissite.com/pages/simple/"
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(exist_ok=True)
+CSV_FILE = DATA_DIR / "countries.csv"
 
 
 def scrape_countries():
@@ -20,6 +25,13 @@ def scrape_countries():
 
     return data
 
+def save_to_csv(data):
+    with open(CSV_FILE, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Country", "Capital", "Population", "Area"])
+        writer.writerows(data)
+
 if __name__ == "__main__":
     countries = scrape_countries()
-    print(f"Scraped {len(countries)} countries")
+    save_to_csv(countries)
+    print(f"Saved {len(countries)} countries to {CSV_FILE}")
