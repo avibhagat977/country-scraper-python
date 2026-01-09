@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import csv
 from pathlib import Path
 
+from database import create_table, insert_data
+
 url = "http://www.scrapethissite.com/pages/simple/"
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
@@ -21,6 +23,10 @@ def scrape_countries():
         population = country.select_one(".country-population").text.strip().replace(",", "")
         area = country.select_one(".country-area").text.strip().replace(",", "")
 
+        # Convert types for DB
+        population = int(population)
+        area = float(area)
+
         data.append([name, capital, population, area])
 
     return data
@@ -33,5 +39,11 @@ def save_to_csv(data):
 
 if __name__ == "__main__":
     countries = scrape_countries()
+
     save_to_csv(countries)
-    print(f"Saved {len(countries)} countries to {CSV_FILE}")
+
+    # Data integration
+    create_table()
+    insert_data(countries)
+
+    print(f"Saved {len(countries)} countries to CSV and SQLite DB")
