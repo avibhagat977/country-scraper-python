@@ -1,10 +1,21 @@
 import sqlite3
 from pathlib import Path
+import logging
 
 DB_FILE = Path("data/countries.db")
+DB_FILE.parent.mkdir(exist_ok=True)
 
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
+
+logging.basicConfig(
+    filename=LOG_DIR / "scraper.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 def connect_db():
+    logging.info("Connecting to SQLite database")
     return sqlite3.connect(DB_FILE)
 
 def create_table():
@@ -21,6 +32,7 @@ def create_table():
     """)
     conn.commit()
     conn.close()
+    logging.info("Countries table created or already exists")
 
 def insert_data(data):
     conn = connect_db()
@@ -31,3 +43,4 @@ def insert_data(data):
     """, data)
     conn.commit()
     conn.close()
+    logging.info(f"{len(data)} records inserted into database")
